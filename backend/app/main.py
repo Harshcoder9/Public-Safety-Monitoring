@@ -34,7 +34,7 @@ def health():
 async def analyze(
     file: UploadFile = File(...),
     userEmail: str = Form(...),
-    location: str = Form("Kandavli"),
+    location: str = Form("Kandivali"),
     includeLosses: bool = Form(False),
     analyzer: str = Form("optical_flow"),
     sampleEverySeconds: float = Form(0.2),
