@@ -6,7 +6,98 @@ import os
 from threading import Lock
 from typing import Dict, List, Optional
 from uuid import uuid4
-from .models import Alert, RiskLevel
+from .models import Alert, RiskLevel, UserLocation
+
+class LocationStore:
+    def __init__(self, *, file_path: Optional[str] = None) -> None:
+        self._lock = Lock()
+        self._locations: Dict[str, UserLocation] = {}
+
+        if file_path is None:
+            here = os.path.dirname(os.path.abspath(__file__)) 
+            backend_dir = os.path.dirname(here)  
+            file_path = os.path.join(backend_dir, "data", "locations.json")
+        
+        self._file_path = file_path
+        self._load_from_disk()
+
+    def _serialize_location(self, loc: UserLocation) -> dict:
+        return {
+            "user_email": loc.user_email,
+            "latitude": loc.latitude,
+            "longitude": loc.longitude,
+            "timestamp": loc.timestamp.isoformat(),
+            "active": loc.active,
+        }
+
+    def _deserialize_location(self, d: dict) -> UserLocation:
+        return UserLocation(
+            user_email=str(d["user_email"]),
+            latitude=float(d["latitude"]),
+            longitude=float(d["longitude"]),
+            timestamp=datetime.fromisoformat(d["timestamp"]),
+            active=bool(d["active"]),
+        )
+
+    def _load_from_disk(self) -> None:
+        try:
+            if not os.path.exists(self._file_path):
+                return
+            with open(self._file_path, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+            if not isinstance(raw, list):
+                return
+            for item in raw:
+                try:
+                    loc = self._deserialize_location(item)
+                    self._locations[loc.user_email] = loc
+                except Exception:
+                    continue
+        except Exception:
+            return
+
+    def _save_to_disk(self) -> None:
+        os.makedirs(os.path.dirname(self._file_path), exist_ok=True)
+        payload = [self._serialize_location(loc) for loc in self._locations.values()]
+        tmp = f"{self._file_path}.tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2)
+        os.replace(tmp, self._file_path)
+
+    def update_location(self, user_email: str, latitude: float, longitude: float) -> UserLocation:
+        with self._lock:
+            loc = UserLocation(
+                user_email=user_email,
+                latitude=latitude,
+                longitude=longitude,
+                timestamp=datetime.now(timezone.utc),
+                active=True
+            )
+            self._locations[user_email] = loc
+            self._save_to_disk()
+            return loc
+
+    def get_active_locations(self) -> List[dict]:
+        with self._lock:
+            # Filter distinct users, just returning list of their latest location
+            # Since we store by user_email in dict, it's already latest per user.
+            active = [
+                {
+                    "user_email": loc.user_email,
+                    "latitude": loc.latitude,
+                    "longitude": loc.longitude,
+                    "timestamp": loc.timestamp.isoformat(),
+                    "active": loc.active
+                }
+                for loc in self._locations.values() if loc.active
+            ]
+            return active
+
+    def remove_location(self, user_email: str) -> None:
+         with self._lock:
+            if user_email in self._locations:
+                del self._locations[user_email]
+                self._save_to_disk()
 
 class AlertStore:
     def __init__(self, *, file_path: Optional[str] = None) -> None:

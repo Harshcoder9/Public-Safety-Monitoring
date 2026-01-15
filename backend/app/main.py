@@ -8,10 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from .analyzers.autoencoder import analyze_video_autoencoder
 from .analyzers.optical_flow import analyze_video_optical_flow
 from .models import RiskLevel
-from .storage import AlertStore
+from .storage import AlertStore, LocationStore
 
 app = FastAPI(title="Crowd Risk API", version="0.1.0")
 store = AlertStore()
+location_store = LocationStore()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -33,7 +34,7 @@ def health():
 async def analyze(
     file: UploadFile = File(...),
     userEmail: str = Form(...),
-    location: str = Form("Kandavli"),
+    location: str = Form("Kandivali"),
     includeLosses: bool = Form(False),
     analyzer: str = Form("optical_flow"),
     sampleEverySeconds: float = Form(0.2),
@@ -163,7 +164,7 @@ async def analyze(
 
     return {
         "userEmail": userEmail,
-        "location": location or "Kandavli",
+        "location": location or "Kandivali",
         **result_payload,
         "alertCreated": alert_created,
         "alert": alert,
@@ -179,3 +180,24 @@ def acknowledge(alert_id: str):
     if updated is None:
         raise HTTPException(status_code=404, detail="Alert not found")
     return updated
+
+@app.post("/api/location")
+def update_location(
+    userEmail: str = Form(...),
+    latitude: float = Form(...),
+    longitude: float = Form(...)
+):
+    loc = location_store.update_location(userEmail, latitude, longitude)
+    return {
+        "status": "ok", 
+        "location": {
+            "user_email": loc.user_email,
+            "latitude": loc.latitude,
+            "longitude": loc.longitude,
+            "timestamp": loc.timestamp.isoformat()
+        }
+    }
+
+@app.get("/api/locations")
+def get_locations():
+    return {"locations": location_store.get_active_locations()}

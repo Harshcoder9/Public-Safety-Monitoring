@@ -48,3 +48,29 @@ export async function acknowledgeAlert(alertId) {
   }
   return res.json()
 }
+
+export async function updateLocation(userEmail, lat, lng) {
+  const form = new FormData()
+  form.append('userEmail', userEmail)
+  form.append('latitude', String(lat))
+  form.append('longitude', String(lng))
+
+  const res = await fetch(`${DEFAULTS.apiBaseUrl}/api/location`, {
+    method: 'POST',
+    body: form,
+  })
+  if (!res.ok) {
+     const txt = await res.text()
+    throw new Error(txt || `Update location failed (${res.status})`)
+  }
+  return res.json()
+}
+
+export async function fetchLocations() {
+  const res = await fetch(`${DEFAULTS.apiBaseUrl}/api/locations`)
+  if (!res.ok) {
+     const txt = await res.text()
+    throw new Error(txt || `Fetch locations failed (${res.status})`)
+  }
+  return res.json()
+}

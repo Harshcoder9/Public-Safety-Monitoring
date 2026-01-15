@@ -21,3 +21,11 @@ class Alert:
     file_name: str
     event_time_seconds: float
     acknowledged_at: Optional[datetime] = None
+
+@dataclass
+class UserLocation:
+    user_email: str
+    latitude: float
+    longitude: float
+    timestamp: datetime
+    active: bool = True

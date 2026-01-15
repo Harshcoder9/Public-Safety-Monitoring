@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { acknowledgeAlert, fetchAlerts } from '../auth/api.js'
+import { acknowledgeAlert, fetchAlerts, fetchLocations } from '../auth/api.js'
+import Map from '../components/Map.jsx'
 import { clearSession, getSession } from '../auth/session.js'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 
@@ -11,6 +12,7 @@ export default function PoliceDashboard() {
   const [busyId, setBusyId] = useState('')
   const [error, setError] = useState('')
   const [includeAck, setIncludeAck] = useState(true)
+  const [locations, setLocations] = useState([])
 
   function riskPill(level) {
     const v = String(level || 'NONE')
@@ -46,6 +48,9 @@ export default function PoliceDashboard() {
     try {
       const data = await fetchAlerts({ includeAcknowledged: includeAck })
       setAlerts(data.alerts || [])
+      
+      const locData = await fetchLocations()
+      setLocations(locData.locations || [])
     } catch (err) {
       setError(err?.message || String(err))
     }
@@ -110,6 +115,17 @@ export default function PoliceDashboard() {
               <div className="mt-2">Prioritize and acknowledge alerts quickly using event time, risk score, cause, and location context.</div>
             </div>
           </div>
+
+          <div className="mt-6 rounded-2xl border border-slate-200/70 bg-white/60 p-4 dark:border-white/10 dark:bg-white/5">
+             <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold">Live User Locations</h3>
+                <div className="text-xs text-slate-600 dark:text-slate-400">Active users: {locations.length}</div>
+             </div>
+             <div className="mt-4">
+               <Map locations={locations} />
+             </div>
+          </div>
+
           <div className="mt-5 grid gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-slate-200/70 bg-white/60 p-4 dark:border-white/10 dark:bg-white/5">
               <div className="text-xs text-slate-600 dark:text-slate-300">Total</div>

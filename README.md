@@ -148,7 +148,7 @@ Open:
 Configured in [frontend/.env](frontend/.env):
 
 - `VITE_API_BASE_URL` (default: `http://127.0.0.1:8000`)
-- `VITE_DEFAULT_LOCATION` (default: `Kandavli`)
+- `VITE_DEFAULT_LOCATION` (default: `kandivali`)
 - `VITE_FORCE_LOCATION` (`true` or `false`)
 
 Demo credentials:
@@ -171,7 +171,7 @@ Multipart form upload.
 Form fields (common):
 - `file` (video: `.mp4`, `.avi`, `.mov`, `.mkv`)
 - `userEmail` (string)
-- `location` (string; default `Kandavli`)
+- `location` (string; default `kandivali`)
 - `analyzer` (`autoencoder` or `optical_flow`)
 
 Autoencoder parameters:
@@ -197,7 +197,7 @@ Response highlights:
 - `alert`: created alert object (when `alertCreated=true`)
 
 Example (curl):
-- `curl -X POST "http://127.0.0.1:8000/api/analyze" -F "file=@your_video.mp4" -F "userEmail=user@example.com" -F "location=Kandavli" -F "analyzer=autoencoder" -F "sampleEverySeconds=0.2"`
+- `curl -X POST "http://127.0.0.1:8000/api/analyze" -F "file=@your_video.mp4" -F "userEmail=user@example.com" -F "location=kandivali" -F "analyzer=autoencoder" -F "sampleEverySeconds=0.2"`
 
 ### `GET /api/alerts?includeAcknowledged=true|false`
 Returns persisted alerts.
