@@ -285,3 +285,15 @@ If you change the port, update the frontend to match:
 
 ---
 
+
+VITE_POLICE_EMAIL=princemaurya8879@gmail.com
+VITE_POLICE_ID=MH1234
+VITE_POLICE_PASSWORD=1234
+VITE_USER_EMAIL=prince@gmail.com
+VITE_USER_PASSWORD=1234
+VITE_DEFAULT_LOCATION=Kandavli
+VITE_FORCE_LOCATION=true
+VITE_GOOGLE_MAPS_API_KEY="AIzaSyBjhBQ6-WzlUqc2tIhpe1k10DpbgPWX_Lc"
+VITE_API_BASE_URL=http://127.0.0.1:8000
+
+
