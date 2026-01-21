@@ -107,9 +107,16 @@ PowerShell:
 - Backend API deps: `pip install -r backend/requirements.txt`
 - Model/analyzer deps: `pip install -r Crowd_Anomaly_Detection/requirements.txt`
 
+Notes:
+- The API uses multipart form upload; ensure `python-multipart` is installed (it is included in `backend/requirements.txt`).
+- If you use a newer Python version and TensorFlow fails to install/import, use Python 3.10/3.11 for best compatibility.
+
 3) Run the API
 
 - `python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000`
+
+Optional (more console logs):
+- `python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000 --log-level debug`
 
 Health check:
 - Open `http://127.0.0.1:8000/api/health`
@@ -222,6 +229,34 @@ Marks an alert as acknowledged.
 ---
 
 ## Troubleshooting
+
+### Backend not starting: `python-multipart` missing
+If you see:
+`Form data requires "python-multipart" to be installed.`
+
+Install backend deps:
+- `pip install -r backend/requirements.txt`
+
+Or install only the missing package:
+- `pip install python-multipart`
+
+Then start again:
+- `python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000`
+
+### Backend not starting: `WinError 10048` (port 8000 already in use)
+This means another process is already listening on `127.0.0.1:8000`.
+
+Option A — find + kill the process (PowerShell):
+- `netstat -ano | findstr :8000`
+- Copy the PID from the last column, then:
+- `taskkill /PID <PID> /F`
+
+Option B — run backend on a different port:
+- `python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001`
+
+If you change the port, update the frontend to match:
+- Set `VITE_API_BASE_URL=http://127.0.0.1:8001` in [frontend/.env](frontend/.env)
+- Restart the frontend dev server: `npm run dev`
 
 ### Frontend loads but API calls fail
 - Verify backend is running at `http://127.0.0.1:8000`

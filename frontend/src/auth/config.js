@@ -1,5 +1,15 @@
 export const DEFAULTS = {
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://public-safety-monitoring.onrender.com' : 'http://127.0.0.1:8000'),
+  apiBaseUrl: (() => {
+    const explicit = import.meta.env.VITE_API_BASE_URL
+    const prodDefault = 'https://public-safety-monitoring.onrender.com'
+    const devDefault = 'http://127.0.0.1:8000'
+
+    if (import.meta.env.PROD) {
+      if (explicit && !/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(explicit)) return explicit
+      return prodDefault
+    }
+    return explicit || devDefault
+  })(),
   defaultLocation: import.meta.env.VITE_DEFAULT_LOCATION || 'Kandavli',
   forceLocation: String(import.meta.env.VITE_FORCE_LOCATION || 'true') === 'true',
   police: {

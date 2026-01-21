@@ -30,6 +30,19 @@ export default function PoliceDashboard() {
     return `${mm}:${ss}`
   }
 
+  function fmtScore(score) {
+    const v = Number(score || 0)
+    // New risk engine outputs 0..100; legacy outputs were tiny float losses/z.
+    if (v > 1) return v.toFixed(0)
+    return v.toFixed(6)
+  }
+
+  function fmtConfidence(c) {
+    const v = Number(c)
+    if (!Number.isFinite(v) || v <= 0) return '—'
+    return v.toFixed(2)
+  }
+
   const policeLabel = useMemo(() => {
     if (!session) return ''
     return `${session.email} (${session.policeId})`
@@ -163,10 +176,17 @@ export default function PoliceDashboard() {
                           <div className="text-xs text-slate-500 dark:text-slate-400">{new Date(a.created_at).toLocaleString()}</div>
                         </div>
                         <div className="mt-2 text-sm text-slate-700 dark:text-slate-200">
-                          <span className="font-semibold">Cause:</span> {a.cause}
+                          <span className="font-semibold">Primary cause:</span> {a.primary_cause || a.cause || '—'}
                         </div>
+                        {a.explanation ? (
+                          <details className="mt-2 rounded-xl border border-slate-200/70 bg-white/40 p-3 text-xs text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                            <summary className="cursor-pointer select-none font-semibold">Explanation</summary>
+                            <pre className="mt-2 whitespace-pre-wrap font-mono leading-5">{a.explanation}</pre>
+                          </details>
+                        ) : null}
                         <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">Event time: <span className="font-mono">{fmtTime(a.event_time_seconds || 0)}</span>
-                          <span className="text-slate-400"> • </span> Score: <span className="font-mono">{Number(a.risk_score || 0).toFixed(6)}</span>
+                          <span className="text-slate-400"> • </span> Score: <span className="font-mono">{fmtScore(a.risk_score)}</span>
+                          <span className="text-slate-400"> • </span> Confidence: <span className="font-mono">{fmtConfidence(a.confidence)}</span>
                           <span className="text-slate-400"> • </span>Status:{' '}
                           <span className={a.acknowledged_at ? 'font-semibold text-emerald-700 dark:text-emerald-300' : 'font-semibold text-amber-700 dark:text-amber-300'}>{a.acknowledged_at ? 'ACK' : 'NEW'}</span>
                         </div>

@@ -134,6 +134,10 @@ class AlertStore:
             risk_score=float(d["risk_score"]),
             file_name=str(d.get("file_name", "")),
             event_time_seconds=float(d.get("event_time_seconds", 0.0)),
+            confidence=float(d.get("confidence", 0.0) or 0.0),
+            primary_cause=str(d.get("primary_cause", "") or d.get("primaryCause", "") or ""),
+            supporting_factors=list(d.get("supporting_factors") or d.get("supportingFactors") or []),
+            explanation=str(d.get("explanation", "") or ""),
             acknowledged_at=acknowledged_at,
         )
 
@@ -171,6 +175,10 @@ class AlertStore:
         risk_score: float,
         file_name: str,
         event_time_seconds: float,
+        confidence: float = 0.0,
+        primary_cause: str = "",
+        supporting_factors: Optional[list[str]] = None,
+        explanation: str = "",
     ) -> Alert:
         alert = Alert(
             id=str(uuid4()),
@@ -181,6 +189,10 @@ class AlertStore:
             risk_score=float(risk_score),
             file_name=file_name,
             event_time_seconds=float(event_time_seconds),
+            confidence=float(confidence or 0.0),
+            primary_cause=str(primary_cause or ""),
+            supporting_factors=list(supporting_factors or []),
+            explanation=str(explanation or ""),
         )
         with self._lock:
             self._alerts[alert.id] = alert

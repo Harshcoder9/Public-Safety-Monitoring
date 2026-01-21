@@ -20,6 +20,10 @@ class Alert:
     risk_score: float
     file_name: str
     event_time_seconds: float
+    confidence: float = 0.0
+    primary_cause: str = ""
+    supporting_factors: Optional[list[str]] = None
+    explanation: str = ""
     acknowledged_at: Optional[datetime] = None
 
 @dataclass

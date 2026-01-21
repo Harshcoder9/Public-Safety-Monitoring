@@ -78,6 +78,11 @@ async def analyze(
                 z_med=float(zMed),
                 z_high=float(zHigh),
                 stop_on_high=True,
+                high_confirm_frames=3,
+                medium_confirm_frames=2,
+                cooldown_frames=5,
+                risk_window=7,
+                require_agreement=2,
             )
             first_alert = next(
                 (s for s in of.samples if s.risk_level in {RiskLevel.MEDIUM, RiskLevel.HIGH}),
@@ -88,7 +93,11 @@ async def analyze(
             result_payload = {
                 "analyzer": "optical_flow",
                 "riskLevel": risk_level.value,
-                "riskScore": float(max((s.z_score for s in of.samples), default=0.0)),
+                "riskScore": float(of.risk_score),
+                "confidence": float(max((s.confidence for s in of.samples), default=0.0)),
+                "primaryCause": (first_alert.primary_cause if first_alert else ""),
+                "supportingFactors": (list(first_alert.supporting_factors or []) if first_alert else []),
+                "explanation": (first_alert.explanation if first_alert else ""),
                 "eventTimeSeconds": event_time_seconds,
                 "summary": {
                     "processFps": float(processFps),
@@ -98,6 +107,20 @@ async def analyze(
                     "zHigh": float(zHigh),
                     "counts": of.counts,
                     "samples": len(of.samples),
+                    "riskEngine": {
+                        "window": 7,
+                        "highConfirmFrames": 3,
+                        "mediumConfirmFrames": 2,
+                        "cooldownFrames": 5,
+                        "requireAgreement": 2,
+                        "signals": [
+                            "densityChangeRate",
+                            "motionSpeed",
+                            "directionalChaos",
+                            "persistence",
+                            "spread",
+                        ],
+                    },
                 },
                 "samples": [
                     {
@@ -107,6 +130,12 @@ async def analyze(
                         "zScore": s.z_score,
                         "activeRatio": s.active_ratio,
                         "cause": s.cause,
+                        "riskScore": s.risk_score_0_100,
+                        "confidence": s.confidence,
+                        "primaryCause": s.primary_cause,
+                        "supportingFactors": list(s.supporting_factors or []),
+                        "explanation": s.explanation,
+                        "signals": dict(s.signals or {}),
                     }
                     for s in of.samples
                 ],
@@ -121,6 +150,11 @@ async def analyze(
                 threshold_medium=float(thresholdMedium),
                 threshold_high=float(thresholdHigh),
                 stop_on_high=True,
+                high_confirm_frames=3,
+                medium_confirm_frames=2,
+                cooldown_frames=5,
+                risk_window=7,
+                require_agreement=2,
             )
             result_payload = {
                 "analyzer": "autoencoder",
@@ -129,6 +163,10 @@ async def analyze(
                 "maxLoss": ae.max_loss,
                 "meanLoss": ae.mean_loss,
                 "eventTimeSeconds": ae.event_time_seconds,
+                "confidence": float(ae.confidence),
+                "primaryCause": str(ae.primary_cause),
+                "supportingFactors": list(ae.supporting_factors or []),
+                "explanation": str(ae.explanation),
                 "sampleEverySeconds": float(sampleEverySeconds),
                 "losses": ae.losses,
                 "samples": ae.samples,
@@ -153,6 +191,10 @@ async def analyze(
             risk_score=float(result_payload.get("riskScore", 0.0)),
             file_name=safe_name,
             event_time_seconds=float(result_payload.get("eventTimeSeconds", 0.0)),
+            confidence=float(result_payload.get("confidence", 0.0) or 0.0),
+            primary_cause=str(result_payload.get("primaryCause", "") or ""),
+            supporting_factors=list(result_payload.get("supportingFactors") or []),
+            explanation=str(result_payload.get("explanation", "") or ""),
         )
         alert = {
             "id": alert_obj.id,
@@ -163,6 +205,10 @@ async def analyze(
             "risk_score": alert_obj.risk_score,
             "file_name": alert_obj.file_name,
             "event_time_seconds": alert_obj.event_time_seconds,
+            "confidence": alert_obj.confidence,
+            "primary_cause": alert_obj.primary_cause,
+            "supporting_factors": list(alert_obj.supporting_factors or []),
+            "explanation": alert_obj.explanation,
         }
 
     return {

@@ -8,6 +8,10 @@
     "risk_score": 0.0012989878887310624,
     "file_name": "test6.mp4",
     "event_time_seconds": 0.0,
+    "confidence": 0.0,
+    "primary_cause": "",
+    "supporting_factors": [],
+    "explanation": "",
     "acknowledged_at": "2026-01-12T15:13:18.553817+00:00"
   },
   {
@@ -19,6 +23,10 @@
     "risk_score": 0.0012090011732652783,
     "file_name": "test4.mp4",
     "event_time_seconds": 0.0,
+    "confidence": 0.0,
+    "primary_cause": "",
+    "supporting_factors": [],
+    "explanation": "",
     "acknowledged_at": null
   },
   {
@@ -30,6 +38,10 @@
     "risk_score": 0.0012989878887310624,
     "file_name": "test6.mp4",
     "event_time_seconds": 90.0,
+    "confidence": 0.0,
+    "primary_cause": "",
+    "supporting_factors": [],
+    "explanation": "",
     "acknowledged_at": null
   },
   {
@@ -41,6 +53,10 @@
     "risk_score": 0.0012989878887310624,
     "file_name": "test6.mp4",
     "event_time_seconds": 90.0,
+    "confidence": 0.0,
+    "primary_cause": "",
+    "supporting_factors": [],
+    "explanation": "",
     "acknowledged_at": null
   },
   {
@@ -52,6 +68,10 @@
     "risk_score": 0.0012090011732652783,
     "file_name": "test4.mp4",
     "event_time_seconds": 16.0,
+    "confidence": 0.0,
+    "primary_cause": "",
+    "supporting_factors": [],
+    "explanation": "",
     "acknowledged_at": "2026-01-15T11:57:07.974671+00:00"
   },
   {
@@ -63,6 +83,120 @@
     "risk_score": 0.0012989878887310624,
     "file_name": "test6.mp4",
     "event_time_seconds": 90.0,
+    "confidence": 0.0,
+    "primary_cause": "",
+    "supporting_factors": [],
+    "explanation": "",
+    "acknowledged_at": null
+  },
+  {
+    "id": "d4de4452-e6f2-47f5-95ab-10232cd6e35b",
+    "created_at": "2026-01-21T05:45:43.665469+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandavli",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- None\nConfidence: 0.46",
+    "acknowledged_at": "2026-01-21T06:36:32.498180+00:00"
+  },
+  {
+    "id": "4429ddeb-e3d9-42bd-b23e-846fc2f195d9",
+    "created_at": "2026-01-21T06:03:55.272145+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandavli",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": "2026-01-21T06:26:15.072458+00:00"
+  },
+  {
+    "id": "f09dd61f-6905-4872-8823-3a0c7c6932e5",
+    "created_at": "2026-01-21T06:31:38.218522+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandavli",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": "2026-01-21T06:36:32.485649+00:00"
+  },
+  {
+    "id": "51b03c54-716a-43e4-bbdb-31488efbed10",
+    "created_at": "2026-01-21T06:36:32.444437+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandavli",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": null
+  },
+  {
+    "id": "8b6bb857-2aa4-47a2-885e-fab87074c82b",
+    "created_at": "2026-01-21T06:40:37.683326+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandavli",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": null
+  },
+  {
+    "id": "3d8272fc-fd6e-41f1-999e-36218000a28f",
+    "created_at": "2026-01-21T06:45:16.169876+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandavli",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
     "acknowledged_at": null
   }
 ]
