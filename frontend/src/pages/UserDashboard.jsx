@@ -19,6 +19,13 @@ export default function UserDashboard() {
   const [thresholdMedium, setThresholdMedium] = useState(0.0012)
   const [thresholdHigh, setThresholdHigh] = useState(0.0016)
   const [showAllSamples, setShowAllSamples] = useState(true)
+  
+  const [realtimeMode, setRealtimeMode] = useState(false)
+  const [realtimeFrame, setRealtimeFrame] = useState(null)
+  const [realtimeData, setRealtimeData] = useState(null)
+  const [progress, setProgress] = useState(0)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const eventSourceRef = useRef(null)
   const userEmail = session?.email || ''
   const samples = Array.isArray(result?.samples) ? result.samples : []
   const filteredSamples = useMemo(() => {
@@ -161,10 +168,13 @@ export default function UserDashboard() {
       return
     }
 
+    if (realtimeMode) {
+      startRealtimeAnalysis()
+      return
+    }
+
     let loc = (location || '').trim() || DEFAULTS.defaultLocation
 
-    // If GPS is available and the user grants access, override the alert location
-    // with a reverse-geocoded place name (so it's not the default text).
     try {
       const pos = await getPositionOnce()
       const lat = pos.coords.latitude
@@ -176,9 +186,7 @@ export default function UserDashboard() {
         loc = name
         if (!locationTouched) setLocation(name)
       }
-    } catch {
-      // Permission denied / GPS unavailable: keep the current location string.
-    }
+    } catch {}
 
     setBusy(true)
     try {
@@ -202,6 +210,66 @@ export default function UserDashboard() {
     }
   }
 
+  async function startRealtimeAnalysis() {
+    setError('')
+    setRealtimeFrame(null)
+    setRealtimeData(null)
+    setProgress(0)
+    setIsAnalyzing(true)
+
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('processFps', '10')
+
+    try {
+      const response = await fetch(`${API_BASE}/api/analyze/realtime`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to start analysis')
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              
+              if (data.type === 'frame') {
+                setRealtimeFrame(`data:image/jpeg;base64,${data.frame}`)
+                setRealtimeData(data)
+                setProgress(data.progress || 0)
+              } else if (data.type === 'complete') {
+                setIsAnalyzing(false)
+                setProgress(100)
+              } else if (data.type === 'error') {
+                setError(data.message)
+                setIsAnalyzing(false)
+              }
+            } catch (e) {
+              console.error('Parse error:', e)
+            }
+          }
+        }
+      }
+    } catch (err) {
+      setError(err?.message || String(err))
+      setIsAnalyzing(false)
+    }
+  }
+
   function logout() {
     clearSession()
     nav('/')
@@ -210,19 +278,63 @@ export default function UserDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-slate-50 to-white text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
       <div className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-slate-950/40">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
           <div>
-            <div className="text-sm font-semibold">User Dashboard</div>
-            <div className="text-xs text-slate-600 dark:text-slate-300">Logged in as: {userEmail}</div>
+            <div className="text-xs sm:text-sm font-semibold">User Dashboard</div>
+            <div className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300">Logged in as: {userEmail}</div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
-            <button onClick={logout} type="button" className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/15">Logout</button>
+            <button onClick={logout} type="button" className="rounded-xl border border-slate-200 bg-white/70 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-slate-800 hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/15">Logout</button>
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        <div className="grid gap-6 lg:grid-cols-2">
+      <div className="mx-auto max-w-6xl px-3 sm:px-4 py-4 sm:py-6">        {isAnalyzing || realtimeFrame ? (
+          <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-4 sm:p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <h2 className="text-base sm:text-lg font-bold">Real-Time Analysis</h2>
+              <button onClick={() => { setIsAnalyzing(false); setRealtimeFrame(null); setRealtimeData(null) }} type="button" className="rounded-xl border border-slate-200 bg-white/70 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-slate-800 hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/15">Stop</button>
+            </div>
+            
+            <div className="relative rounded-2xl border border-slate-200/70 bg-black/90 p-3 dark:border-white/10">
+              {realtimeFrame && (
+                <>
+                  <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
+                    <div className="rounded-lg bg-black/70 px-2 py-1 text-xs font-semibold text-white backdrop-blur">{file?.name || 'Video'}</div>
+                    {realtimeData && riskPill(realtimeData.risk_level)}
+                  </div>
+                  <img src={realtimeFrame} alt="Analysis" className="w-full rounded-lg" />
+                  {realtimeData && (
+                    <>
+                      <div className="mt-3 grid grid-cols-4 gap-2 text-xs text-white">
+                        <div className="rounded-lg bg-white/10 p-2 backdrop-blur"><span className="font-semibold">People:</span> {realtimeData.person_count || 0}</div>
+                        <div className="rounded-lg bg-white/10 p-2 backdrop-blur"><span className="font-semibold">Score:</span> {(realtimeData.risk_score || 0).toFixed(0)}</div>
+                        <div className="rounded-lg bg-white/10 p-2 backdrop-blur"><span className="font-semibold">Conf:</span> {(realtimeData.confidence || 0).toFixed(2)}</div>
+                        <div className="rounded-lg bg-white/10 p-2 backdrop-blur"><span className="font-semibold">Time:</span> {fmtTime(realtimeData.time_seconds)}</div>
+                      </div>
+                      <div className="mt-2 rounded-lg bg-white/10 p-2 text-xs text-white backdrop-blur">{realtimeData.primary_cause || 'Analyzing...'}</div>
+                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                        <div className="h-full bg-indigo-600 transition-all duration-300" style={{ width: `${progress}%` }}></div>
+                      </div>
+                      <div className="mt-1 text-center text-xs text-white/70">{progress.toFixed(1)}% Complete</div>
+                    </>
+                  )}
+                  {!realtimeData && (
+                    <div className="mt-3 text-center text-sm text-white">Initializing analysis...</div>
+                  )}
+                </>
+              )}
+              {!realtimeFrame && (
+                <div className="flex h-96 items-center justify-center text-white">
+                  <div className="text-center">
+                    <div className="mb-2 text-lg font-semibold">Processing video...</div>
+                    <div className="text-sm text-white/70">Frames will appear shortly</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (        <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-6">
             <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
               <div className="flex items-start justify-between gap-4">
@@ -283,6 +395,13 @@ export default function UserDashboard() {
                   <label className="text-sm font-semibold">Video file</label>
                   <input className="mt-2 w-full rounded-xl border border-slate-200 bg-white/80 px-3 py-2 outline-none dark:border-white/10 dark:bg-slate-950/40" type="file" accept="video/mp4,video/avi,video/mov,video/mkv" onChange={(e) => setFile(e.target.files?.[0] || null)} />
                 </div>
+                <div className="rounded-xl border border-indigo-200/70 bg-indigo-50/50 p-4 dark:border-indigo-900/30 dark:bg-indigo-900/10">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+                    <input type="checkbox" checked={realtimeMode} onChange={(e) => setRealtimeMode(e.target.checked)} className="rounded" />
+                    Real-Time Analysis Mode (Live Preview)
+                  </label>
+                  <div className="mt-1 text-xs text-indigo-700 dark:text-indigo-300">Watch video processing with live detection boxes, person count, and risk metrics</div>
+                </div>
                 <details className="rounded-xl border border-slate-200/70 bg-white/60 p-4 dark:border-white/10 dark:bg-white/5">
                   <summary className="cursor-pointer text-sm font-semibold">Advanced settings (model thresholds & sampling)</summary>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -301,7 +420,7 @@ export default function UserDashboard() {
                     </div>
                   </div>
                 </details>
-                <button className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95 disabled:opacity-60" type="submit" disabled={busy}>{busy ? 'Analyzing…' : 'Analyze Risk'}</button>
+                <button className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95 disabled:opacity-60" type="submit" disabled={busy || isAnalyzing}>{isAnalyzing ? 'Analyzing…' : realtimeMode ? 'Start Real-Time Analysis' : busy ? 'Analyzing…' : 'Analyze Risk'}</button>
               </form>
               {error ? (
                 <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</div>
@@ -393,6 +512,7 @@ export default function UserDashboard() {
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   )

@@ -178,13 +178,165 @@
       "Density increase below threshold"
     ],
     "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
-    "acknowledged_at": null
+    "acknowledged_at": "2026-01-21T06:59:29.298707+00:00"
   },
   {
     "id": "3d8272fc-fd6e-41f1-999e-36218000a28f",
     "created_at": "2026-01-21T06:45:16.169876+00:00",
     "user_email": "prince@gmail.com",
     "location": "Kandavli",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": null
+  },
+  {
+    "id": "643753d9-8bc0-46c3-809a-40b4feb265b9",
+    "created_at": "2026-01-21T08:31:57.689862+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandivali",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": null
+  },
+  {
+    "id": "624eed98-0cfc-49dd-b163-2333c3542766",
+    "created_at": "2026-01-21T08:55:45.784110+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandivali",
+    "risk_level": "MEDIUM",
+    "risk_score": 33.60274215144316,
+    "file_name": "test2.mp4",
+    "event_time_seconds": 36.0,
+    "confidence": 0.4562650804943378,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:36\nRisk Score: 31\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": null
+  },
+  {
+    "id": "0721133e-3f9f-402f-8e49-c2bd06a2947c",
+    "created_at": "2026-01-21T09:00:38.491840+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandivali",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": null
+  },
+  {
+    "id": "0f90b253-3a51-46f4-8a71-e807e0c4fc89",
+    "created_at": "2026-01-21T09:09:45.849279+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandivali",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": null
+  },
+  {
+    "id": "4d8a6442-b79b-4517-9178-cd1d0bdbb158",
+    "created_at": "2026-01-21T09:15:01.289669+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandivali",
+    "risk_level": "MEDIUM",
+    "risk_score": 33.60274215144316,
+    "file_name": "test2.mp4",
+    "event_time_seconds": 36.0,
+    "confidence": 0.4562650804943378,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:36\nRisk Score: 31\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": null
+  },
+  {
+    "id": "79affb63-4188-4c8e-be34-eb01e752576f",
+    "created_at": "2026-01-21T09:22:46.432313+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandivali",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": "2026-01-21T09:32:34.618166+00:00"
+  },
+  {
+    "id": "c221ba6b-5cdc-4263-bae1-edc3550caeb5",
+    "created_at": "2026-01-21T09:29:55.326420+00:00",
+    "user_email": "prince@gmail.com",
+    "location": "Kandivali",
+    "risk_level": "MEDIUM",
+    "risk_score": 43.89478011918808,
+    "file_name": "test6.mp4",
+    "event_time_seconds": 24.0,
+    "confidence": 0.46231396644335154,
+    "primary_cause": "Sustained anomaly persistence",
+    "supporting_factors": [
+      "Crowd acceleration not dominant",
+      "Localized impact (spread below threshold)",
+      "Density increase below threshold"
+    ],
+    "explanation": "Time: 00:00:24\nRisk Score: 33\nRisk Level: MEDIUM\nPrimary Cause: Sustained anomaly persistence\nSupporting Factors:\n- Crowd acceleration not dominant\n- Localized impact (spread below threshold)\n- Density increase below threshold\nConfidence: 0.46",
+    "acknowledged_at": "2026-01-21T09:32:29.455016+00:00"
+  },
+  {
+    "id": "53729df9-69c4-49b9-bf15-472713a4e14f",
+    "created_at": "2026-01-21T10:23:34.552902+00:00",
+    "user_email": "princemaurya8879@gmail.com",
+    "location": "Kandivali",
     "risk_level": "MEDIUM",
     "risk_score": 43.89478011918808,
     "file_name": "test6.mp4",

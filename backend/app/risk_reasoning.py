@@ -48,21 +48,12 @@ def _risk_level_from_score(score: float) -> str:
 
 
 class RiskReasoningEngine:
-    """Decision-grade risk reasoning.
-
-    Mandatory properties implemented:
-    - Multi-signal scoring (>= 3 signals)
-    - Score (0..100) -> level mapping
-    - Temporal stability (window smoothing + escalation confirmation + cooldown)
-    - Explainable decisions (primary cause + supporting factors + confidence)
-    - False-alarm awareness (spike suppression + multi-signal agreement)
-    """
 
     def __init__(
         self,
         *,
-        window: int = 7,
-        require_agreement: int = 2,
+        window: int = 10,
+        require_agreement: int = 3,
         high_confirm_frames: int = 3,
         medium_confirm_frames: int = 2,
         cooldown_frames: int = 5,
@@ -78,18 +69,12 @@ class RiskReasoningEngine:
         self.deescalate_frames = max(1, int(deescalate_frames))
         self.low_confirm_frames = max(1, int(low_confirm_frames))
 
-        # Weighting explanation (used implicitly in explanations):
-        # - motion_speed: strongest indicator of agitation/acceleration
-        # - directional_chaos: direction instability indicates panic / turbulence
-        # - density_change_rate: rapid growth/compaction proxy
-        # - spread: localized vs scene-wide impact
-        # - persistence: sustained anomalies are higher risk than spikes
         self.weights = weights or {
             "motion_speed": 0.30,
-            "directional_chaos": 0.20,
-            "density_change_rate": 0.20,
-            "spread": 0.15,
-            "persistence": 0.15,
+            "directional_chaos": 0.25,
+            "density_change_rate": 0.25,
+            "spread": 0.20,
+            "persistence": 0.0,
         }
 
         self._scores: List[float] = []
@@ -313,6 +298,9 @@ class RiskReasoningEngine:
         return primary_cause, supporting, explanation
 
     def update(self, *, time_seconds: float, signals: RiskSignals) -> RiskDecision:
+        return self.decide(time_seconds=time_seconds, signals=signals)
+
+    def decide(self, *, time_seconds: float, signals: RiskSignals) -> RiskDecision:
         norm = self._normalize_signals(signals)
 
         # False-alarm awareness: require multi-signal agreement for MEDIUM/HIGH.

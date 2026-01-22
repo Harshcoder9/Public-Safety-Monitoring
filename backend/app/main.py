@@ -3,12 +3,19 @@ from __future__ import annotations
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Dict
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+import asyncio
+import json
 from .analyzers.autoencoder import analyze_video_autoencoder
 from .analyzers.optical_flow import analyze_video_optical_flow
+from .analyzers.yolo_crowd_detector import analyze_video_yolo
 from .models import RiskLevel
 from .storage import AlertStore, LocationStore
+from .stream_manager import stream_manager
+from .realtime_analyzer_fast import analyze_video_realtime
 
 app = FastAPI(title="Crowd Risk API", version="0.1.0")
 store = AlertStore()
@@ -16,7 +23,7 @@ location_store = LocationStore()
 
 cors_origins = os.getenv(
     "CORS_ALLOW_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173,https://public-safety-monitoring.vercel.app",
+    "http://localhost:5173,http://127.0.0.1:5173,http://192.168.0.106:5173,https://public-safety-monitoring.vercel.app",
 )
 allow_origins = [o.strip() for o in cors_origins.split(",") if o.strip()]
 app.add_middleware(
@@ -69,7 +76,51 @@ async def analyze(
     analyzer_norm = (analyzer or "").strip().lower()
 
     try:
-        if analyzer_norm in {"optical_flow", "flow", "optical"}:
+        if analyzer_norm in {"yolo", "yolov8"}:
+            result = analyze_video_yolo(
+                video_path=str(out_path),
+                process_fps=float(processFps) or 10.0,
+                confidence_threshold=0.4,
+                risk_window=10,
+                high_confirm_frames=3,
+                medium_confirm_frames=2,
+                cooldown_frames=5,
+                require_agreement=3,
+                stop_on_high=True,
+            )
+            risk_level = result.risk_level
+            event_time_seconds = result.event_time_seconds
+            result_payload = {
+                "analyzer": "yolo",
+                "riskLevel": risk_level.value,
+                "riskScore": float(result.risk_score),
+                "confidence": float(result.confidence),
+                "primaryCause": result.primary_cause,
+                "supportingFactors": result.supporting_factors,
+                "explanation": result.explanation,
+                "eventTimeSeconds": event_time_seconds,
+                "summary": {
+                    "processFps": float(processFps) or 10.0,
+                    "samples": len(result.samples),
+                    "riskEngine": {
+                        "window": 10,
+                        "highConfirmFrames": 3,
+                        "mediumConfirmFrames": 2,
+                        "cooldownFrames": 5,
+                        "requireAgreement": 3,
+                        "signals": [
+                            "densityChangeRate",
+                            "motionSpeed",
+                            "directionalChaos",
+                            "spread",
+                            "persistence",
+                        ],
+                    },
+                },
+                "samples": result.samples,
+            }
+        
+        elif analyzer_norm in {"optical_flow", "flow", "optical"}:
             of = analyze_video_optical_flow(
                 video_path=str(out_path),
                 process_fps=float(processFps),
@@ -172,7 +223,7 @@ async def analyze(
                 "samples": ae.samples,
             }
         else:
-            raise HTTPException(status_code=400, detail="Invalid analyzer. Use 'optical_flow' or 'autoencoder'.")
+            raise HTTPException(status_code=400, detail="Invalid analyzer. Use 'yolo', 'optical_flow' or 'autoencoder'.")
 
     except HTTPException:
         raise
@@ -259,3 +310,103 @@ def stop_location(userEmail: str = Form(...)):
         raise HTTPException(status_code=400, detail="Missing userEmail")
     location_store.remove_location(email)
     return {"status": "ok"}
+
+@app.post("/api/streams/add")
+async def add_stream(
+    camera_id: str = Form(...),
+    rtsp_url: str = Form(...),
+    location: str = Form("Unknown"),
+):
+    def handle_stream_alert(data: Dict):
+        if data.get("risk_level") in {"MEDIUM", "HIGH"}:
+            try:
+                store.create_alert(
+                    user_email=f"camera_{camera_id}",
+                    location=location,
+                    risk_level=RiskLevel.from_str(data["risk_level"]),
+                    risk_score=float(data.get("risk_score", 0.0)),
+                    file_name=f"stream_{camera_id}",
+                    event_time_seconds=float(data.get("time_seconds", 0.0)),
+                    confidence=float(data.get("confidence", 0.0)),
+                    primary_cause=str(data.get("primary_cause", "")),
+                    supporting_factors=list(data.get("supporting_factors", [])),
+                    explanation=str(data.get("explanation", "")),
+                )
+            except Exception as e:
+                print(f"Failed to create alert from stream: {e}")
+    
+    success = stream_manager.add_stream(camera_id, rtsp_url, location, handle_stream_alert)
+    if not success:
+        raise HTTPException(status_code=400, detail="Stream already exists")
+    
+    return {"status": "ok", "camera_id": camera_id}
+
+@app.delete("/api/streams/{camera_id}")
+async def remove_stream(camera_id: str):
+    success = stream_manager.remove_stream(camera_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Stream not found")
+    return {"status": "ok"}
+
+@app.get("/api/streams/{camera_id}/frame")
+async def get_stream_frame(camera_id: str):
+    data = stream_manager.get_latest_frame(camera_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="No frame available")
+    return data
+
+@app.get("/api/streams/all")
+async def get_all_streams():
+    return stream_manager.get_all_latest_frames()
+
+async def event_generator():
+    while True:
+        await asyncio.sleep(0.5)
+        frames = stream_manager.get_all_latest_frames()
+        if frames:
+            yield f"data: {json.dumps(frames)}\n\n"
+
+@app.get("/api/streams/sse")
+async def stream_sse():
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
+
+@app.post("/api/analyze/realtime")
+async def analyze_realtime(
+    file: UploadFile = File(...),
+    processFps: float = Form(10.0),
+):
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Missing filename")
+    
+    suffix = Path(file.filename).suffix.lower()
+    if suffix not in {".mp4", ".avi", ".mov", ".mkv"}:
+        raise HTTPException(status_code=400, detail="Unsupported file type")
+    
+    safe_name = Path(file.filename).name
+    out_path = UPLOAD_DIR / f"{int(datetime.now().timestamp())}_{safe_name}"
+    
+    try:
+        contents = await file.read()
+        out_path.write_bytes(contents)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save upload: {e}")
+    
+    return StreamingResponse(
+        analyze_video_realtime(
+            video_path=str(out_path),
+            process_fps=float(processFps),
+        ),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        }
+    )
